@@ -20,6 +20,23 @@ That flag keeps the button away from visitors arriving from the bio link. It is
 who views source. It doesn't need to be: editing only writes to the visitor's own
 browser, so nobody can change what others see.
 
+### Product images
+
+Each item takes an optional `img` — paste an image URL in the Add/Edit form, or set
+it in `DEFAULTS`:
+
+    {id:'k5', title:'Instant Pot Duo 7-in-1', url:'https://www.amazon.com/dp/B0F9BD5M2K',
+     img:'https://instantpot.com/cdn/shop/files/140-8004-01Silo.png'},
+
+Leave it out and the card shows the little plate, exactly as before. Only `http`/`https`
+URLs are accepted; anything else is dropped. If an image 404s or is blocked it is
+removed at runtime and the plate shows through, so a bad URL never leaves an empty box.
+
+Note that images are **not** fetched from the Amazon link — Amazon's product images
+require their Product Advertising API (signed requests, impossible on a static site)
+or a SiteStripe image link. Hotlinking a manufacturer's CDN works but breaks whenever
+they change the URL; committing the file to this repo is more durable.
+
 **Edits are local to your browser.** To change what visitors see you must edit the
 `DEFAULTS` object in `index.html` and push. Handy workflow: open with `?edit=8941`,
 build the list, hit **Copy JSON** (its shape matches `DEFAULTS` exactly), paste it
