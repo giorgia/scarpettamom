@@ -298,6 +298,13 @@ function shopBadge(){
   return `<span class="amz-badge">Amazon <span aria-hidden="true">→</span></span>`;
 }
 
+// Edit mode is opt-in via ?edit=8941 — it keeps the button out of the way for
+// visitors arriving from the bio link. This is presentation, not security:
+// the page is static, and all editing writes to the visitor's own
+// localStorage, so there is nothing here to protect. The value is visible to
+// anyone who views the page source, not just in this repo.
+const EDIT_ENABLED = new URLSearchParams(location.search).get('edit') === '8941';
+
 let EDIT=false;
 let data=load();
 let editingId=null;
@@ -401,14 +408,16 @@ function openModal(cat){
 }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
 
-document.getElementById('editToggle').onclick=(e)=>{
+if(!EDIT_ENABLED){ document.getElementById('editToggle').remove(); }
+
+document.getElementById('editToggle')?.addEventListener('click', (e)=>{
   EDIT=!EDIT; editingId=null;
   e.currentTarget.classList.toggle('on', EDIT);
   e.currentTarget.textContent = EDIT?'Done ✓':'Edit • ✎';
   e.currentTarget.setAttribute('aria-pressed', EDIT);
   render();
   if(EDIT) toast('Edit mode – tap Edit on any card');
-};
+});
 
 document.getElementById('btnCancel').onclick=closeModal;
 document.getElementById('modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
