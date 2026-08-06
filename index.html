@@ -117,7 +117,6 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
   font-family:"Fredoka",sans-serif;font-weight:700;font-size:18px;letter-spacing:.05em;
   text-transform:uppercase;color:var(--brown);line-height:1.1;margin:0;
 }
-.cat-count{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.6;background:white;padding:4px 8px;border-radius:999px;border:1px solid rgba(74,44,29,.1)}
 .cards{display:flex;flex-direction:column;gap:9px}
 .card{
   background:white;border-radius:16px;padding:12px 12px 11px;display:flex;align-items:center;gap:11px;
@@ -135,9 +134,7 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 .card-main{flex:1;min-width:0}
 .card-title{font-family:"Fredoka",sans-serif;font-weight:600;font-size:14.8px;line-height:1.25;color:var(--brown);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:pretty}
 .card-url{font-size:11.5px;opacity:.55;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;max-width:100%}
-.amz-badge{display:inline-flex;align-items:center;gap:3px;background:#111;color:white;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:800;letter-spacing:.01em;line-height:1;flex:0 0 auto}
-.amz-badge i{width:10px;height:3px;background:#FF9900;display:inline-block;border-radius:0 0 10px 10px;transform:rotate(-8deg);margin-left:2px;position:relative}
-.amz-badge i:after{content:"";position:absolute;right:-3px;top:-3px;width:0;height:0;border-left:4px solid #FF9900;border-top:3px solid transparent;border-bottom:3px solid transparent;transform:rotate(45deg)}
+.amz-badge{display:inline-flex;align-items:center;gap:4px;background:var(--brown);color:white;border-radius:999px;padding:6px 11px;font-family:"Fredoka",sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;line-height:1;flex:0 0 auto}
 
 /* Edit mode */
 .card.editing{flex-direction:column;align-items:stretch;padding:12px}
@@ -294,8 +291,11 @@ function affiliateUrl(rawUrl){
   }
 }
 
-function amazonLogoSvg(){
-  return `<span class="amz-badge">amazon<i></i></span>`;
+// Plain text naming the destination — not Amazon's logo. The Associates
+// terms only allow their marks via Amazon's own tools (SiteStripe etc.),
+// so we don't draw an approximation of the wordmark or swoosh.
+function shopBadge(){
+  return `<span class="amz-badge">Amazon <span aria-hidden="true">→</span></span>`;
 }
 
 let EDIT=false;
@@ -306,15 +306,15 @@ function render(){
   const container=document.getElementById('content');
   container.innerHTML='';
   const cfg=[
-    {key:'kitchen', title:'KITCHEN TOOLS I USE', bg:'pink', count:`4 tools`},
-    {key:'toddler', title:'TODDLER FEEDING', bg:'green', count:`toddler tested`},
-    {key:'pantry', title:'PANTRY STAPLES', bg:'yellow', count:`pantry love`}
+    {key:'kitchen', title:'KITCHEN TOOLS I USE', bg:'pink'},
+    {key:'toddler', title:'TODDLER FEEDING', bg:'green'},
+    {key:'pantry', title:'PANTRY STAPLES', bg:'yellow'}
   ];
   cfg.forEach(c=>{
     const sec=document.createElement('section');
     sec.className='cat'; sec.dataset.bg=c.bg;
     const head=document.createElement('div'); head.className='cat-head';
-    head.innerHTML=`<h2 class="cat-title">${c.title}</h2><span class="cat-count">${(data[c.key]||[]).length} • ${c.count}</span>`;
+    head.innerHTML=`<h2 class="cat-title">${c.title}</h2>`;
     sec.appendChild(head);
     const list=document.createElement('div'); list.className='cards';
     (data[c.key]||[]).forEach(item=>{
@@ -344,7 +344,7 @@ function render(){
         a.innerHTML=`
           <div class="card-thumb"><span class="plate-mini">${plateMini(c.bg)}</span></div>
           <div class="card-main"><div class="card-title">${escapeHtml(item.title)}</div><div class="card-url">${escapeHtml(new URL(affiliateUrl(item.url)).hostname.replace('www.',''))} • ${escapeHtml(TAG)}</div></div>
-          ${amazonLogoSvg()}
+          ${shopBadge()}
           <button class="btn" data-edit style="margin-left:4px">Edit</button>
         `;
         a.querySelector('[data-edit]').onclick=(e)=>{ e.preventDefault(); editingId=item.id; render(); };
@@ -352,7 +352,7 @@ function render(){
         a.innerHTML=`
           <div class="card-thumb"><span class="plate-mini">${plateMini(c.bg)}</span></div>
           <div class="card-main"><div class="card-title">${escapeHtml(item.title)}</div><div class="card-url">tap to shop • earns commission</div></div>
-          ${amazonLogoSvg()}
+          ${shopBadge()}
         `;
       }
       list.appendChild(a);
