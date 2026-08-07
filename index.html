@@ -151,6 +151,7 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 .btn.primary{background:var(--brown);color:white}
 .btn.ghost{opacity:.8}
 .btn.danger{border-color:#E25C5C;color:#A12A2A;background:#FFF1F1}
+.btn.publish{background:var(--dark-green);border-color:var(--dark-green);color:white;flex:1 0 100%;margin-top:2px}
 .add-btn{width:100%;margin-top:8px;border:1.5px dashed rgba(74,44,29,.22);background:rgba(255,255,255,.6);padding:10px;border-radius:14px;font-family:"Fredoka",sans-serif;font-weight:600;font-size:13.5px;color:var(--brown);cursor:pointer}
 
 /* Footer disclosure */
@@ -315,6 +316,10 @@ function shopBadge(){
 // anyone who views the page source, not just in this repo.
 const EDIT_ENABLED = new URLSearchParams(location.search).get('edit') === '8941';
 
+// GitHub's web editor for this file. Opening it is what makes an edit real —
+// everything Edit mode does otherwise stays in this browser's localStorage.
+const GH_EDIT_URL = 'https://github.com/giorgia/scarpettamom/edit/main/index.html';
+
 let EDIT=false;
 let data=load();
 let editingId=null;
@@ -395,6 +400,7 @@ function render(){
       <button class="btn ghost" id="btnReset">Reset to defaults</button>
       <button class="btn ghost" id="btnExport">Copy JSON</button>
       <button class="btn primary" id="btnAddGeneric">+ New link</button>
+      <button class="btn publish" id="btnPublish">Publish on GitHub →</button>
     `;
     container.appendChild(qa);
     document.getElementById('btnReset').onclick=()=>{ if(confirm('Reset all links to defaults?')){ localStorage.removeItem(LS_KEY); data=load(); render(); toast('Reset'); } };
@@ -402,6 +408,18 @@ function render(){
       navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>toast('JSON copied')).catch(()=>{ prompt('Copy JSON', JSON.stringify(data,null,2)); });
     };
     document.getElementById('btnAddGeneric').onclick=()=>openModal('kitchen');
+
+    // Copy the current links and open GitHub's web editor on index.html, so the
+    // list can be pasted over DEFAULTS and committed from a phone. window.open
+    // must run synchronously inside the click or mobile browsers block it as a
+    // popup, so it goes first and the clipboard write follows.
+    document.getElementById('btnPublish').onclick=()=>{
+      const json=JSON.stringify(data,null,2);
+      window.open(GH_EDIT_URL,'_blank','noopener');
+      navigator.clipboard.writeText(json)
+        .then(()=>toast('Links copied — paste over DEFAULTS on GitHub'))
+        .catch(()=>{ prompt('Copy these links, then paste over DEFAULTS on GitHub', json); });
+    };
   }
 }
 
@@ -459,6 +477,9 @@ document.getElementById('editToggle')?.addEventListener('click', (e)=>{
   e.currentTarget.setAttribute('aria-pressed', EDIT);
   render();
   if(EDIT) toast('Edit mode – tap Edit on any card');
+  // Leaving edit mode with changes that only exist in this browser: say so,
+  // otherwise it looks like the edits are already published.
+  else if(JSON.stringify(data)!==JSON.stringify(DEFAULTS)) toast('Saved on this device only — Publish on GitHub to go live');
 });
 
 document.getElementById('btnCancel').onclick=closeModal;
