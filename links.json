@@ -1,0 +1,62 @@
+{
+  "kitchen": [
+    {
+      "id": "k1",
+      "title": "Pink Instant Pot",
+      "url": "https://amzn.to/4wJHizJ",
+      "img": "https://m.media-amazon.com/images/P/B0F9BD5M2K.01._SCLZZZZZZZ_.jpg"
+    },
+    {
+      "id": "k2",
+      "title": "Sans RO Countertop Water Purifier",
+      "url": "https://amzn.to/4wNuNU2",
+      "img": "https://cdn.shopify.com/s/files/1/0446/3404/6632/articles/Sans-12_1_55d6e6ef-6441-4286-902e-e9de6517b26f.jpg?v=1749667343&width=2400&height=1601&crop=center"
+    },
+    {
+      "id": "k4",
+      "title": "Our Place Wonder Oven, 6-in-1 Air Fryer & Toaster Oven, 2-Rack",
+      "url": "https://amzn.to/4wNwRvg",
+      "img": "https://m.media-amazon.com/images/I/81kqyMYQibL._AC_UF894,1000_QL80_.jpg"
+    },
+    {
+      "id": "kmsi1ir0",
+      "title": "Glass Bowl 3 Cups Mini Food Processors",
+      "url": "https://amzn.to/3SiDwhR",
+      "img": "https://m.media-amazon.com/images/I/71oxJm-m6DL.jpg"
+    }
+  ],
+  "toddler": [
+    {
+      "id": "t1",
+      "title": "Porcelain White Plates with Silicone Sleeves",
+      "url": "https://amzn.to/4fH394Z",
+      "img": "https://m.media-amazon.com/images/I/41Kl5ACznmL._AC_UF894,1000_QL80_.jpg"
+    },
+    {
+      "id": "t2",
+      "title": "Stainless Steel Lunch Box",
+      "url": "https://amzn.to/3RRiZkq",
+      "img": "https://m.media-amazon.com/images/I/71VgHv8A49L._AC_UF894,1000_QL80_.jpg"
+    }
+  ],
+  "pantry": [
+    {
+      "id": "p2",
+      "title": "Chickpeas Organic – for hummus",
+      "url": "https://amzn.to/4pX7fJy",
+      "img": "https://m.media-amazon.com/images/P/B01LA85OYC.01._SCLZZZZZZZ_.jpg"
+    },
+    {
+      "id": "p3",
+      "title": "La Tourangelle Extra Virgin Olive Oil",
+      "url": "https://amzn.to/4pXS9U9",
+      "img": "https://m.media-amazon.com/images/P/B00QGWM5HC.01._SCLZZZZZZZ_.jpg"
+    },
+    {
+      "id": "p4",
+      "title": "Rolled Oat – for waffles",
+      "url": "https://amzn.to/4whwmsj",
+      "img": "https://m.media-amazon.com/images/P/B07C9KRVNT.01._SCLZZZZZZZ_.jpg"
+    }
+  ]
+}

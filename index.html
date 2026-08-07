@@ -241,6 +241,7 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 /* Brand data / localStorage */
 const LS_KEY = 'scarpettamom_links_v1';
 const TAG = 'scarpettamom2-20';
+const CATS = ['kitchen','toddler','pantry'];
 const DEFAULTS = {
   kitchen: [
     {id:'k1', title:'Pink Instant Pot', url:'https://amzn.to/4wJHizJ',
@@ -268,18 +269,37 @@ const DEFAULTS = {
   ]
 };
 
+// links.json is the published list and the file you edit on GitHub. DEFAULTS
+// above is only a fallback, for when the fetch fails or the page is opened
+// straight off disk (file:// blocks the request). Once links.json loads it
+// replaces DEFAULTS as the baseline everything else is measured against.
+let REMOTE = null;
+function baseLinks(){ return REMOTE || DEFAULTS; }
+
+async function loadRemote(){
+  try{
+    const r = await fetch('links.json', {cache:'no-store'});
+    if(!r.ok) return null;
+    const j = await r.json();
+    // must actually look like a link file before it's allowed to replace anything
+    if(j && CATS.some(k=>Array.isArray(j[k]))) return j;
+  }catch(e){}
+  return null;
+}
+
 function load(){
+  const base = baseLinks();
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return structuredClone(DEFAULTS);
+    if(!raw) return structuredClone(base);
     const parsed = JSON.parse(raw);
     // merge validation
-    const out = structuredClone(DEFAULTS);
-    for(const k of ['kitchen','toddler','pantry']){
+    const out = structuredClone(base);
+    for(const k of CATS){
       if(Array.isArray(parsed[k]) && parsed[k].length) out[k]=parsed[k];
     }
     return out;
-  }catch(e){ return structuredClone(DEFAULTS); }
+  }catch(e){ return structuredClone(base); }
 }
 function save(data){ localStorage.setItem(LS_KEY, JSON.stringify(data)); }
 
@@ -319,7 +339,7 @@ const EDIT_ENABLED = new URLSearchParams(location.search).get('edit') === '8941'
 
 // GitHub's web editor for this file. Opening it is what makes an edit real —
 // everything Edit mode does otherwise stays in this browser's localStorage.
-const GH_EDIT_URL = 'https://github.com/giorgia/scarpettamom/edit/main/index.html';
+const GH_EDIT_URL = 'https://github.com/giorgia/scarpettamom/edit/main/links.json';
 
 // Card subtitle used when an item doesn't set its own.
 const DEFAULT_SUB = 'tap to shop • earns commission';
@@ -410,7 +430,7 @@ function render(){
       <button class="btn publish" id="btnPublish">Publish on GitHub →</button>
     `;
     container.appendChild(qa);
-    document.getElementById('btnReset').onclick=()=>{ if(confirm('Reset all links to defaults?')){ localStorage.removeItem(LS_KEY); data=load(); render(); toast('Reset'); } };
+    document.getElementById('btnReset').onclick=()=>{ if(confirm('Discard this device’s edits and show the published links?')){ localStorage.removeItem(LS_KEY); data=load(); render(); toast('Showing published links'); } };
     document.getElementById('btnExport').onclick=()=>{
       navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>toast('JSON copied')).catch(()=>{ prompt('Copy JSON', JSON.stringify(data,null,2)); });
     };
@@ -510,7 +530,7 @@ document.getElementById('editToggle')?.addEventListener('click', (e)=>{
   if(EDIT) toast('Edit mode – tap Edit on any card');
   // Leaving edit mode with changes that only exist in this browser: say so,
   // otherwise it looks like the edits are already published.
-  else if(JSON.stringify(data)!==JSON.stringify(DEFAULTS)) toast('Saved on this device only — Publish on GitHub to go live');
+  else if(JSON.stringify(data)!==JSON.stringify(baseLinks())) toast('Saved on this device only — Publish on GitHub to go live');
 });
 
 document.getElementById('btnCancel').onclick=closeModal;
@@ -531,8 +551,15 @@ document.getElementById('btnSaveNew').onclick=()=>{
   data[cat]=data[cat]||[]; data[cat].push(item); save(data); closeModal(); render(); toast('Added ✓');
 };
 
-// initial
+// Paint immediately from the embedded fallback so there's never a blank page,
+// then swap in links.json once it arrives. Re-rendering is skipped when the
+// visitor has their own saved list, since that wins either way.
 render();
+loadRemote().then(remote=>{
+  if(!remote) return;
+  REMOTE = remote;
+  if(!localStorage.getItem(LS_KEY)){ data = load(); render(); }
+});
 </script>
 </body>
 </html>
