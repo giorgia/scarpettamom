@@ -242,7 +242,7 @@ const TAG = 'scarpettamom2-20';
 const DEFAULTS = {
   kitchen: [
     {id:'k1', title:'Pink Instant Pot', url:'https://amzn.to/4wJHizJ',
-     img:'https://instantpot.com/cdn/shop/files/140-8004-01Silo.png?v=1753720208&width=1536'},
+     img:'https://m.media-amazon.com/images/P/B0F9BD5M2K.01._SCLZZZZZZZ_.jpg'},
     {id:'k2', title:'Sans RO Countertop Water Purifier', url:'https://amzn.to/4wNuNU2',
      img:'https://cdn.shopify.com/s/files/1/0446/3404/6632/articles/Sans-12_1_55d6e6ef-6441-4286-902e-e9de6517b26f.jpg?v=1749667343&width=2400&height=1601&crop=center'},
     {id:'k4', title:'Our Place Wonder Oven, 6-in-1 Air Fryer & Toaster Oven, 2-Rack', url:'https://amzn.to/4wNwRvg',
@@ -258,11 +258,11 @@ const DEFAULTS = {
   ],
   pantry: [
     {id:'p2', title:'Chickpeas Organic – for hummus', url:'https://amzn.to/4pX7fJy',
-     img:'https://cdn.shopify.com/s/files/1/0918/2009/7810/files/jovial_beans_chickpea_silo_x280.jpg?v=1738785928'},
+     img:'https://m.media-amazon.com/images/P/B01LA85OYC.01._SCLZZZZZZZ_.jpg'},
     {id:'p3', title:'La Tourangelle Extra Virgin Olive Oil', url:'https://amzn.to/4pXS9U9',
-     img:'https://www.vitacost.com/cdn/shop/files/51_4172c20e-8492-46b0-b99c-b669b4af3209.jpg?v=1781991575&width=1346'},
+     img:'https://m.media-amazon.com/images/P/B00QGWM5HC.01._SCLZZZZZZZ_.jpg'},
     {id:'p4', title:'Rolled Oat – for waffles', url:'https://amzn.to/4whwmsj',
-     img:'https://cdn11.bigcommerce.com/s-fk5836vtc2/images/stencil/500x659/products/2815/9319/1983s284_glutenfree_quickcookingrolledoats_f_1__35841.1677610668.jpg?c=2'}
+     img:'https://m.media-amazon.com/images/P/B07C9KRVNT.01._SCLZZZZZZZ_.jpg'}
   ]
 };
 
@@ -420,11 +420,19 @@ function safeImgUrl(u){
 }
 
 // Product photo if there is one, otherwise the little plate. The plate is always
-// rendered underneath, so a broken or blocked image URL degrades to it rather
-// than to an empty box — onerror just removes the failed <img>.
+// rendered underneath, so a bad image degrades to it rather than to an empty box.
+//
+// Two failure modes, both handled:
+//   onerror — the ordinary 404 / blocked / DNS failure.
+//   onload  — Amazon's image host answers 200 with a 1x1 transparent GIF when it
+//             has no picture for an ASIN. That "loads" successfully, so onerror
+//             never fires and the card would show an invisible box. Anything
+//             1px or smaller is treated as no image.
 function thumb(item, bg){
   const src=safeImgUrl(item.img);
-  const img = src ? `<img class="thumb-img" src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.remove()">` : '';
+  const img = src
+    ? `<img class="thumb-img" src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.remove()" onload="if(this.naturalWidth<=1||this.naturalHeight<=1)this.remove()">`
+    : '';
   return `<div class="card-thumb"><span class="plate-mini">${plateMini(bg)}</span>${img}</div>`;
 }
 
