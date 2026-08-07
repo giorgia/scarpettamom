@@ -135,7 +135,7 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 .card-thumb .thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:white}
 .card-main{flex:1;min-width:0}
 .card-title{font-family:"Fredoka",sans-serif;font-weight:600;font-size:14.8px;line-height:1.25;color:var(--brown);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:pretty}
-.card-url{font-size:11.5px;opacity:.55;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;max-width:100%}
+.card-url{font-size:11.5px;opacity:.55;margin-top:1px;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:pretty}
 .amz-badge{display:inline-flex;align-items:center;gap:4px;background:var(--brown);color:white;border-radius:999px;padding:6px 11px;font-family:"Fredoka",sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;line-height:1;flex:0 0 auto}
 
 /* Edit mode */
@@ -225,7 +225,8 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
       </select>
       <input id="inpTitle" placeholder="Product name — e.g. Toddler plates silicone"/>
       <input id="inpUrl" placeholder="https://www.amazon.com/dp/... or search link"/>
-      <input id="inpImg" placeholder="Image URL (optional) — leave blank for the plate"/>
+      <input id="inpSub" placeholder="Subtitle — optional, defaults to tap to shop • earns commission"/>
+      <input id="inpImg" placeholder="Image URL — optional, auto from amazon.com/dp/ links"/>
     </div>
     <div class="row2">
       <button class="btn ghost" id="btnCancel">Cancel</button>
@@ -320,6 +321,9 @@ const EDIT_ENABLED = new URLSearchParams(location.search).get('edit') === '8941'
 // everything Edit mode does otherwise stays in this browser's localStorage.
 const GH_EDIT_URL = 'https://github.com/giorgia/scarpettamom/edit/main/index.html';
 
+// Card subtitle used when an item doesn't set its own.
+const DEFAULT_SUB = 'tap to shop • earns commission';
+
 let EDIT=false;
 let data=load();
 let editingId=null;
@@ -347,7 +351,8 @@ function render(){
         a.innerHTML=`
           <div class="edit-row"><input data-k="title" value="${escapeHtml(item.title)}" placeholder="Product name"></div>
           <div class="edit-row" style="margin-top:8px"><input data-k="url" value="${escapeHtml(item.url)}" placeholder="https://amazon.com/..."></div>
-          <div class="edit-row" style="margin-top:8px"><input data-k="img" value="${escapeHtml(item.img||'')}" placeholder="Image URL (optional)"></div>
+          <div class="edit-row" style="margin-top:8px"><input data-k="sub" value="${escapeHtml(item.sub||'')}" placeholder="${escapeHtml(DEFAULT_SUB)}"></div>
+          <div class="edit-row" style="margin-top:8px"><input data-k="img" value="${escapeHtml(item.img||'')}" placeholder="Image URL — optional, auto from /dp/ links"></div>
           <div class="edit-actions">
             <button class="btn danger" data-act="delete">Delete</button>
             <div style="display:flex;gap:8px"><button class="btn ghost" data-act="cancel">Cancel</button><button class="btn primary" data-act="save">Save</button></div>
@@ -360,10 +365,12 @@ function render(){
           const t=a.querySelector('[data-k="title"]').value.trim();
           const u=a.querySelector('[data-k="url"]').value.trim();
           const im=a.querySelector('[data-k="img"]').value.trim();
+          const sb=a.querySelector('[data-k="sub"]').value.trim();
           if(!t) return toast('Add a title');
           if(!u) return toast('Add a URL');
           if(im && !safeImgUrl(im)) return toast('Image URL must start with http');
           item.title=t; item.url=u;
+          if(sb) item.sub=sb; else delete item.sub;
           if(im) item.img=im; else delete item.img;
           save(data); editingId=null; render(); toast('Saved ✓');
         };
@@ -378,7 +385,7 @@ function render(){
       }else{
         a.innerHTML=`
           ${thumb(item, c.bg)}
-          <div class="card-main"><div class="card-title">${escapeHtml(item.title)}</div><div class="card-url">tap to shop • earns commission</div></div>
+          <div class="card-main"><div class="card-title">${escapeHtml(item.title)}</div><div class="card-url">${escapeHtml(item.sub || DEFAULT_SUB)}</div></div>
           ${shopBadge()}
         `;
       }
@@ -437,6 +444,29 @@ function safeImgUrl(u){
   catch(e){ return ''; }
 }
 
+// Amazon product URLs carry a 10-character ASIN in the path. Pull it out so the
+// product image can be derived without anyone pasting an image URL.
+//
+// Note this only works on full amazon.com links. An amzn.to short link hides the
+// ASIN behind a redirect, and the browser can't follow it to look — no CORS
+// headers — so those still need an explicit image.
+function asinFromUrl(u){
+  try{
+    const url=new URL(/^https?:\/\//i.test(u||'') ? u : 'https://'+(u||''));
+    if(!/(^|\.)amazon\.[a-z.]+$/i.test(url.hostname)) return '';
+    const m=url.pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d|product)\/([A-Z0-9]{10})(?:[\/?]|$)/i);
+    return m ? m[1].toUpperCase() : '';
+  }catch(e){ return ''; }
+}
+
+// Amazon's by-ASIN image endpoint. Undocumented, and it answers 200 with a 1x1
+// GIF when it has nothing — which the onload check below turns back into the
+// plate, so a miss costs nothing.
+function autoImgUrl(u){
+  const asin=asinFromUrl(u);
+  return asin ? `https://m.media-amazon.com/images/P/${asin}.01._SCLZZZZZZZ_.jpg` : '';
+}
+
 // Product photo if there is one, otherwise the little plate. The plate is always
 // rendered underneath, so a bad image degrades to it rather than to an empty box.
 //
@@ -447,7 +477,7 @@ function safeImgUrl(u){
 //             never fires and the card would show an invisible box. Anything
 //             1px or smaller is treated as no image.
 function thumb(item, bg){
-  const src=safeImgUrl(item.img);
+  const src=safeImgUrl(item.img) || autoImgUrl(item.url);
   const img = src
     ? `<img class="thumb-img" src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.remove()" onload="if(this.naturalWidth<=1||this.naturalHeight<=1)this.remove()">`
     : '';
@@ -464,6 +494,7 @@ function openModal(cat){
   document.getElementById('inpTitle').value='';
   document.getElementById('inpUrl').value='';
   document.getElementById('inpImg').value='';
+  document.getElementById('inpSub').value='';
   document.getElementById('inpTitle').focus();
 }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
@@ -493,7 +524,9 @@ document.getElementById('btnSaveNew').onclick=()=>{
   const img=document.getElementById('inpImg').value.trim();
   if(img && !safeImgUrl(img)) return toast('Image URL must start with http');
   const id=(cat[0]+Date.now().toString(36)).slice(0,8);
+  const sub=document.getElementById('inpSub').value.trim();
   const item={id,title,url};
+  if(sub) item.sub=sub;
   if(img) item.img=img;
   data[cat]=data[cat]||[]; data[cat].push(item); save(data); closeModal(); render(); toast('Added ✓');
 };
