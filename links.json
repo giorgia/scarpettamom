@@ -30,9 +30,17 @@
     },
     {
       "id": "kmsig64p",
-      "title": "Stainless Steel 4-Qt Large Sauce Pan",
+      "title": "Tramontina Stainless Steel 4-Qt Pan",
       "url": "https://amzn.to/4fN0pSc",
-      "sub": "Non toxic"
+      "sub": "Non toxic",
+      "img": "https://www.tramontina.com/cdn/shop/files/Tempo_2_Quart_TPB_Stainless_Steel_Covered_Sauce_Pan_80154003.jpg"
+    },
+    {
+      "id": "kmsoy4s4",
+      "title": "Le Creuset Saucepan",
+      "url": "https://amzn.to/4wjANCE",
+      "sub": "Non-toxic",
+      "img": "https://m.media-amazon.com/images/I/61m-42+kNzL._AC_UF894,1000_QL80_.jpg"
     }
   ],
   "toddler": [
@@ -77,7 +85,8 @@
       "id": "pmsidg9u",
       "title": "Manitoba Harvest Organic Hemp Plus Flax & Chia Seeds",
       "url": "https://amzn.to/4wfEvxl",
-      "sub": "Proteins • fibers • Omega3 • super mix"
+      "sub": "Proteins • fibers • Omega3 • super mix",
+      "img": "https://m.media-amazon.com/images/I/71wryYJns9L._AC_UF1000,1000_QL80_.jpg"
     }
   ]
 }
