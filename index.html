@@ -222,6 +222,7 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
         <option value="kitchen">KITCHEN TOOLS I USE</option>
         <option value="toddler">TODDLER FEEDING</option>
         <option value="pantry">PANTRY STAPLES</option>
+        <option value="supplements">SUPPLEMENTS</option>
       </select>
       <input id="inpTitle" placeholder="Product name — e.g. Toddler plates silicone"/>
       <input id="inpUrl" placeholder="https://www.amazon.com/dp/... or search link"/>
@@ -241,7 +242,7 @@ body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 /* Brand data / localStorage */
 const LS_KEY = 'scarpettamom_links_v1';
 const TAG = 'scarpettamom2-20';
-const CATS = ['kitchen','toddler','pantry'];
+const CATS = ['kitchen','toddler','pantry','supplements'];
 const DEFAULTS = {
   kitchen: [
     {id:'k1', title:'Pink Instant Pot', url:'https://amzn.to/4wJHizJ',
@@ -266,7 +267,8 @@ const DEFAULTS = {
      img:'https://m.media-amazon.com/images/P/B00QGWM5HC.01._SCLZZZZZZZ_.jpg'},
     {id:'p4', title:'Rolled Oat – for waffles', url:'https://amzn.to/4whwmsj',
      img:'https://m.media-amazon.com/images/P/B07C9KRVNT.01._SCLZZZZZZZ_.jpg'}
-  ]
+  ],
+  supplements: []
 };
 
 // links.json is the published list and the file you edit on GitHub. DEFAULTS
@@ -354,9 +356,13 @@ function render(){
   const cfg=[
     {key:'kitchen', title:'KITCHEN TOOLS I USE', bg:'pink'},
     {key:'toddler', title:'TODDLER FEEDING', bg:'green'},
-    {key:'pantry', title:'PANTRY STAPLES', bg:'yellow'}
+    {key:'pantry', title:'PANTRY STAPLES', bg:'yellow'},
+    {key:'supplements', title:'SUPPLEMENTS', bg:'blue'}
   ];
   cfg.forEach(c=>{
+    // A section with nothing in it is only shown in edit mode — visitors would
+    // otherwise get a bare heading over an empty box while the list is filled in.
+    if(!EDIT && !(data[c.key]||[]).length) return;
     const sec=document.createElement('section');
     sec.className='cat'; sec.dataset.bg=c.bg;
     const head=document.createElement('div'); head.className='cat-head';
