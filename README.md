@@ -20,6 +20,16 @@ That flag keeps the button away from visitors arriving from the bio link. It is
 who views source. It doesn't need to be: editing only writes to the visitor's own
 browser, so nobody can change what others see.
 
+### Sections
+
+The page renders four sections — kitchen, toddler, pantry, supplements. A section
+lives in three places in `index.html` (`CATS`, the `cfg` list in `render()`, and the
+Add-modal `<select>`) plus a key in `links.json`. Its colour comes from the `bg` field
+in `cfg` — `pink`, `green`, `yellow`, or `blue`.
+
+A section with no links is hidden from visitors and only shows in edit mode, so a new
+one can be committed empty and filled in later.
+
 ### Product images
 
 Each item takes an optional `img` — paste an image URL in the Add/Edit form, or set
