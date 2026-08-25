@@ -95,5 +95,30 @@
       "img": "https://m.media-amazon.com/images/I/71wryYJns9L._AC_UF1000,1000_QL80_.jpg"
     }
   ],
-  "supplements": []
+  "supplements": [
+    {
+      "id": "smt83dgt",
+      "title": "Creatine Monohydrate",
+      "url": "https://amzn.to/4hSEkEO",
+      "sub": "Brain fog • memory • muscles"
+    },
+    {
+      "id": "smt83q6b",
+      "title": "Thyroid Health Complex",
+      "url": "https://amzn.to/3U6Fe6K",
+      "sub": "Hashimoto • energy • mood"
+    },
+    {
+      "id": "smt83srj",
+      "title": "Omega-3 with CoQ10, Fish Oil",
+      "url": "https://amzn.to/4xXKwjt",
+      "sub": "DHA • cholesterol"
+    },
+    {
+      "id": "smt83vrh",
+      "title": "Magnesium Glycinate",
+      "url": "https://amzn.to/46k4IA6",
+      "sub": "Sleep support • stress relief"
+    }
+  ]
 }
